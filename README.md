@@ -1,5 +1,8 @@
 # Fort-McCoy
 
+## Touch Panel Folder
+### .vtp is the front end code (the rest is compiled)
+
 ## Newly Created SPIs
 ### These are new Simpl+ modules that are not in EMS's existing code.
 #### The "Set Selected Cams IP" Simpl+ Code would have to be manually extended (just repeating existing code based on # of cameras used.)
