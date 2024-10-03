@@ -1,0 +1,58 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: YourDealerName
+System Name: YourSystemName
+System Number: YourSystemNumber
+Programmer: YourName
+Comments: Sets CamIP1 based on FB_A state
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+*******************************************************************************************/
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+*******************************************************************************************/
+DIGITAL_INPUT Camera_A_FB;          // Digital input
+DIGITAL_INPUT Camera_B_FB;          // Digital input
+STRING_INPUT CamIP1[18];       // String output to set
+STRING_INPUT CamIP2[18];
+STRING_OUTPUT Camera_IP$;        // Serial output variable
+
+/*******************************************************************************************
+  Main()
+*******************************************************************************************/
+Function Main()
+{
+    // Initialization if needed
+}
+
+/*******************************************************************************************
+  Event Handlers
+*******************************************************************************************/
+CHANGE Camera_A_FB
+{
+    // Check if FB_A is high
+    if (Camera_A_FB)
+    {
+        // Set CamIP1 to be equal to idOut when FB_A is high
+        Camera_IP$ = CamIP1;
+    }
+}
+CHANGE Camera_B_FB
+{
+    // Check if FB_A is high
+    if (Camera_B_FB)
+    {
+        // Set CamIP1 to be equal to idOut when FB_A is high
+        Camera_IP$ = CamIP2;
+    }
+}
+

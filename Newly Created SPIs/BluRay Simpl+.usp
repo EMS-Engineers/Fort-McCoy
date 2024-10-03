@@ -1,0 +1,474 @@
+/* SIMPL+ Module Information
+
+Dealer Name: Education Management Solutions 
+Programmer: Nelson Blickman
+Comments: Created on 09/16/2024 to control Blu-ray (Nelson Blickman)
+         Updated on XX/XX/XXXX to ... (Name)
+*/
+
+// Compiler Directives
+//#CATEGORY "46" "Media Player" // Custom
+#ENABLE_TRACE
+#PRINT_TO_TRACE
+          
+// Define Constants
+#DEFINE_CONSTANT HEADER "!7"
+#DEFINE_CONSTANT FOOTER "\x0D"
+#DEFINE_CONSTANT STRING_SIZE 2048
+
+#HELP_BEGIN
+Programmed to...
+#HELP_END
+
+// DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+STRING_OUTPUT Device_TX$;
+STRING_INPUT Device_RX$[2048];
+DIGITAL_INPUT PowerOn, PowerOff, DiskOpen, DiskClose, Keypad0, Keypad1, Keypad2, Keypad3, Keypad4, Keypad5, Keypad6, Keypad7, Keypad8, Keypad9, SetupMenu, TopMenu, OptionMenu, PopUpMenu, DisplayInfo, Ret, Enter, Home, Lef, Righ, Up, Down, Play, Pause, Stop, ChapterJumpNext, ChapterJumpPrevious, TitleJumpNext, TitleJumpPrevious, ScanForwardSlow, ScanForwardFast, ScanReverseFast, Debug;
+DIGITAL_OUTPUT Disk_State, Power_State, Playing, Paused, Stopped;
+
+// Global Variables
+INTEGER TransportState[3];
+INTEGER this_char#;
+STRING buffer_temp$[STRING_SIZE];
+
+// Functions
+FUNCTION Send(STRING toSend$)
+{
+
+	Print("Send called");
+
+    // Push toSend$ command with header and footer to the device
+    makestring(Device_TX$, "%s%s%s", HEADER, toSend$, FOOTER);
+}
+  
+// Functions
+FUNCTION Transport_FB(INTEGER i){
+	setarray(TransportState,off);
+	
+	TransportState[i] = on;
+
+	Playing = TransportState[1];
+	Paused = TransportState[2];
+	Stopped = TransportState[3];
+}
+
+FUNCTION Process(STRING rx$){
+
+	// Declare variables
+    STRING lastThreeChars$[3];
+	STRING header$[2];
+  	Print("String Received from DVD Player");
+	Print("%s", rx$);                
+
+    // Extract the last 3 characters from the received string
+    lastThreeChars$ = RIGHT(rx$, 3);
+    // Remove !7 from the start of the string
+    header$ = REMOVE("!7", rx$);
+
+	//Print("%s", lastThreeChars$);
+	//Print("%s", header$);
+
+    // Check the command and add comments accordingly
+    if (lastThreeChars$ = "SMN"){
+		if (Debug = On){
+        	TRACE("FB Setup Menu");
+		}
+    }
+    else if (lastThreeChars$ = "TMN"){
+      if (Debug = On){
+        TRACE("FB Top Menu");
+		}
+    }
+    else if (lastThreeChars$ = "OMN"){
+      if (Debug = On){
+        TRACE("FB Option Menu");
+		}
+    }
+    else if (lastThreeChars$ = "PMN"){
+      if (Debug = On){
+        TRACE("FB Pop Up Menu");
+		}
+    }
+    else if (lastThreeChars$ = "DSP"){
+      if (Debug = On){
+        TRACE("FB Display/Info");
+		}
+    }
+    else if (lastThreeChars$ = "RET"){
+      if (Debug = On){
+        TRACE("FB Return");
+		}
+    }
+    else if (lastThreeChars$ = "ENT"){
+      if (Debug = On){
+        TRACE("FB Enter");
+		}
+    }
+    else if (lastThreeChars$ = "HOM"){
+      if (Debug = On){
+        TRACE("FB Home");
+		}
+    }
+    else if (rx$ = "OSD1"){
+      if (Debug = On){
+        TRACE("FB Cursor Left");
+		}
+    }
+    else if (rx$ = "OSD2"){
+      if (Debug = On){
+        TRACE("FB Cursor Right");
+		}
+    }
+    else if (rx$ = "OSD3"){
+      if (Debug = On){
+        TRACE("FB Cursor Up");
+		}
+    }
+    else if (rx$ = "OSD4"){
+      if (Debug = On){
+        TRACE("FB Cursor Down");
+		}
+    }
+    else if (lastThreeChars$ = "PLY"){
+      if (Debug = On){
+		// Playing
+        Transport_FB(1);
+        TRACE("FB Play");
+		}
+    }
+    else if (lastThreeChars$ = "PAS"){
+      if (Debug = On){
+		// Paused
+        Transport_FB(2);
+        TRACE("FB Pause");
+		}
+    }
+    else if (lastThreeChars$ = "STP"){
+      if (Debug = On){
+    	// Stopped
+        Transport_FB(3);
+        TRACE("FB Stop");
+		}
+    }
+    else if (rx$ = "SKPNX"){
+      if (Debug = On){
+		TRACE("FB Chapter Jump Next");
+		}
+    }
+    else if (rx$ = "SKPPV"){
+      if (Debug = On){
+		TRACE("FB Chapter Jump Previous");
+		}
+    }
+    else if (rx$ = "GSKNX"){
+      if (Debug = On){
+		TRACE("FB Title Jump Next");
+	  }
+    }
+    else if (rx$ = "GSKPV"){
+      if (Debug = On){
+		TRACE("FB Title Jump Previous");
+	  }
+    }
+    else if (rx$ = "SCNFs"){
+      if (Debug = On){
+		TRACE("FB Scan Forward Slow");
+	  }
+    }
+    else if (rx$ = "SCNFf"){
+      if (Debug = On){
+		TRACE("FB Scan Forward Fast");
+	  }
+    }
+    else if (rx$ = "SCNRf"){
+      if (Debug = On){
+		TRACE("FB Scan Reverse Fast");
+	  }
+    }
+	else if (rx$ = "NUM1"){
+      if (Debug = On){
+		TRACE("FB Keypad 1");
+	  }
+	}
+	else if (rx$ = "NUM2"){
+      if (Debug = On){
+		TRACE("FB Keypad 2");
+	  }
+	}
+	else if (rx$ = "NUM3"){
+      if (Debug = On){
+		TRACE("FB Keypad 3");
+	  }
+	}
+	else if (rx$ = "NUM4"){
+      if (Debug = On){
+		TRACE("FB Keypad 4");
+	  }
+	}
+	else if (rx$ = "NUM5"){
+      if (Debug = On){
+		TRACE("FB Keypad 5");
+	  }
+	}
+	else if (rx$ = "NUM6"){
+      if (Debug = On){
+		TRACE("FB Keypad 6");
+	  }
+	}
+	else if (rx$ = "NUM7"){
+      if (Debug = On){
+		TRACE("FB Keypad 7");
+	  }
+	}
+	else if (rx$ = "NUM8"){
+      if (Debug = On){
+		TRACE("FB Keypad 8");
+	  }
+	}
+	else if (rx$ = "NUM9"){
+      if (Debug = On){
+		TRACE("FB Keypad 9");
+	  }
+	}
+	else if (rx$ = "NUM0"){
+      if (Debug = On){
+		TRACE("FB Keypad 0");
+	  }
+	}    
+	else if (rx$ = "PWR01"){
+        // Handle Power On command
+        Power_State = on;
+        if (Debug = On){
+            TRACE("FB Power On");
+        }
+    }
+    else if (rx$ = "PWR00"){
+        // Handle Power Off command
+        Power_State = off;
+        if (Debug = On){
+            TRACE("FB Power Off");
+        }
+    }
+    else if (rx$ = "MSTTO"){
+        Disk_State = on;
+        if (Debug = On){
+            TRACE("FB Disk Open");
+        }
+    }
+    else if (rx$ = "MSTTC"){
+        Disk_State = off;
+        if (Debug = On){
+            TRACE("FB Disk Close");
+        }
+    }
+    else{
+        if (Debug = On){
+            TRACE("FB Unrecognized Command");
+        }
+    }
+}
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+   
+
+PUSH PowerOn{
+    Send("PWR01");  // Power On
+}
+                          
+PUSH PowerOff{
+    Send("PWR00");  // Power Off
+}
+
+PUSH DiskOpen{
+    Send("OPCOP");  // Disk Open
+}
+
+PUSH DiskClose{
+    Send("OPCCL");  // Disk Close
+}
+
+PUSH Keypad0{
+    Send("NUM0");  // Keypad0
+}
+
+PUSH Keypad1{
+    Send("NUM1");  // Keypad1
+}
+
+PUSH Keypad2{
+    Send("NUM2");  // Keypad2
+}
+
+PUSH Keypad3{
+    Send("NUM3");  // Keypad3
+}
+
+PUSH Keypad4{
+    Send("NUM4");  // Keypad4
+}
+
+PUSH Keypad5{
+    Send("NUM5");  // Keypad5
+}
+
+PUSH Keypad6{
+    Send("NUM6");  // Keypad6
+}
+
+PUSH Keypad7{
+    Send("NUM7");  // Keypad7
+}
+
+PUSH Keypad8{
+    Send("NUM8");  // Keypad8
+}
+
+PUSH Keypad9{
+    Send("NUM9");  // Keypad9
+}
+
+PUSH SetupMenu{
+    Send("SMN");   // Setup Menu
+}
+
+PUSH TopMenu{
+    Send("TMN");   // Top Menu
+}
+
+PUSH OptionMenu{
+    Send("OMN");   // Option Menu
+}
+
+PUSH PopUpMenu{
+    Send("PMN");   // Pop Up Menu
+}
+
+PUSH DisplayInfo{
+    Send("DSP");   // Display/Info
+}
+
+PUSH Ret{
+    Send("RET");   // Return
+}
+
+PUSH Enter{
+    Send("ENT");   // Enter
+}
+
+PUSH Home{
+    Send("HOM");   // Home
+}
+
+PUSH Lef{
+    Send("OSD1");  // Cursor Left
+}
+
+PUSH Righ{
+    Send("OSD2");  // Cursor Right
+}
+
+PUSH Up{
+    Send("OSD3");  // Cursor Up
+}
+
+PUSH Down{
+    Send("OSD4");  // Cursor Down
+}
+
+PUSH Play{
+	// Send play command and emulate FB
+	if(TransportState[1] = off){
+	    Send("PLY");
+		Transport_FB(1);
+	}
+}
+
+PUSH Pause{
+	// Send pause command and emulate FB
+	if(TransportState[2] = off){
+    	Send("PAS");   // Pause
+		Transport_FB(2);
+	}
+}
+
+PUSH Stop{
+	// Send stop command and emulate FB
+	if(TransportState[3] = off){
+	    Send("STP");
+		Transport_FB(3);
+	}
+}
+PUSH ChapterJumpNext
+{
+    Send("SKPNX"); // Chapter Jump Next
+}
+
+PUSH ChapterJumpPrevious{
+    Send("SKPPV"); // Chapter Jump Previous
+}
+PUSH TitleJumpNext{
+    Send("GSKNX"); // Title Jump Next
+}
+
+PUSH TitleJumpPrevious{
+    Send("GSKPV"); // Title Jump Previous
+}
+
+PUSH ScanForwardSlow{
+    Send("SCNFs"); // Title Jump Previous
+}
+
+PUSH ScanForwardFast{
+    Send("SCNFf"); // Title Jump Previous
+}
+
+PUSH ScanReverseFast{
+    Send("SCNRf"); // Title Jump Previous
+}
+
+THREADSAFE CHANGE Device_RX${
+	// Buffer to handle data, in case it comes in different sized chunks
+    String temp$[STRING_SIZE];
+	Signed_Integer temp_size;
+
+	do{
+		this_char# = getc(Device_RX$);
+		buffer_temp$ = buffer_temp$ + chr(this_char#);
+		if(find(HEADER,buffer_temp$)<>0 && find(FOOTER,buffer_temp$)<>0){
+			temp$ = remove(HEADER,buffer_temp$);
+			temp$ = remove(FOOTER,buffer_temp$);
+			temp_size = len(temp$) - 1;
+			if(temp_size > 0)	Process(left(temp$, temp_size));
+		}
+	}until(len(Device_RX$)=0);
+}
+
+/*
+RELEASE input
+{
+    // TODO:  Add code here
+}
+*/
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+Function Main(){
+	//waitForInitializationComplete();
+	setarray(TransportState,off);
+
+    // TODO:  Add code here
+    // Initialize declared global and local variables/arrays as needed.
+
+    // WaitForInitializationComplete();
+    // If you are reading any Input or Output variables, uncomment
+    //   the WaitForInitializationComplete statement above and read
+    //   them afterwards.  Input/Output variables will not have
+    //   their correct values set until after the logic processor
+    //   runs and propagates the values to them.
+}
